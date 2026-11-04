@@ -88,14 +88,14 @@ export function ChatPanel() {
       });
 
       if (!response.ok || !response.body) {
-        const body = (await response.json().catch(() => ({}))) as { error?: string; status?: number };
-        if (response.status === 503 || body.error === "knowledge_not_connected") {
+        const body = (await response.json().catch(() => ({}))) as { error?: string; status?: number; reason?: string };
+        if (body.error === "knowledge_not_connected") {
           setConnection("disconnected");
           fail("knowledge_not_connected");
           return;
         }
         const code = body.error && body.error in chat.errors ? (body.error as ErrorCode) : "knowledge_upstream_error";
-        fail(code, `HTTP ${body.status ?? response.status}`);
+        fail(code, [`HTTP ${body.status ?? response.status}`, body.reason].filter(Boolean).join(" · "));
         return;
       }
 

@@ -11,6 +11,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_QUERY_LENGTH = 1000;
+// Only fixed identifiers (knowledge_llm_error, ECONNREFUSED, ...) may reach the browser.
+const SAFE_CODE = /^[A-Za-z0-9_.-]{1,64}$/;
+
+/** Reads `value[key]` (or `value[key].code`) when it is a short identifier; never free text. */
+function safeCode(value: unknown, key: string): string | undefined {
+  if (typeof value !== "object" || value === null || !(key in value)) return undefined;
+  let field: unknown = (value as Record<string, unknown>)[key];
+  if (typeof field === "object" && field !== null && "code" in field) field = field.code;
+  return typeof field === "string" && SAFE_CODE.test(field) ? field : undefined;
+}
 
 export async function POST(request: Request) {
   const config = getKnowledgeConfig();
@@ -44,15 +54,24 @@ export async function POST(request: Request) {
     if (request.signal.aborted) {
       return new Response(null, { status: 499 });
     }
-    console.error(`[ask] knowledge request failed: ${error instanceof Error ? error.name : "unknown"}`);
-    return Response.json({ error: "knowledge_upstream_error" }, { status: 502 });
+    const reason = safeCode(error instanceof Error ? error.cause : undefined, "code") ?? (error instanceof Error ? error.name : "unknown");
+    console.error(`[ask] knowledge request failed: ${reason}`);
+    return Response.json({ error: "knowledge_upstream_error", reason }, { status: 502 });
   }
 
   if (!upstream.ok || !upstream.body) {
-    console.error(`[ask] knowledge answer returned HTTP ${upstream.status}`);
-    await upstream.body?.cancel();
+    // Knowledge answers failures as JSON `{"error": "<code>", "message": ...}`; only the code
+    // (a fixed identifier such as knowledge_llm_error) is passed to the browser.
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(await upstream.text());
+    } catch {
+      parsed = undefined;
+    }
+    const reason = safeCode(parsed, "error");
+    console.error(`[ask] knowledge answer returned HTTP ${upstream.status}${reason ? ` ${reason}` : ""}`);
     return Response.json(
-      { error: "knowledge_upstream_error", status: upstream.status },
+      { error: "knowledge_upstream_error", status: upstream.status, reason },
       { status: 502 },
     );
   }
