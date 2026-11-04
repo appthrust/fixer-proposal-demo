@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
-import { chat } from "@/app/content";
+import { chat, chatMaxWaitSeconds } from "@/app/content";
 
 type Citation = {
   documentId: string;
@@ -71,6 +71,8 @@ export function ChatPanel() {
     setPhase("waiting");
 
     const fail = (code: ErrorCode, detail?: string) => {
+      // Operators can read the failure code in the browser console; customers see plain copy only.
+      if (detail) console.warn(`[ask] ${code}: ${detail}`);
       setError({ code, detail });
       setPhase("error");
     };
@@ -250,6 +252,10 @@ export function ChatPanel() {
             )}
           </div>
           <p className="mt-2 text-xs text-slate-500">{chat.waitHint}</p>
+          <div className="mt-3 flex flex-col gap-2 rounded-xl bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-slate-600">{chat.knowledgeLink.help}</p>
+            <KnowledgeLink text={question || input} />
+          </div>
         </form>
 
         {phase !== "idle" ? (
@@ -259,14 +265,23 @@ export function ChatPanel() {
 
             <div role="status" aria-live="polite" className="mt-4 text-sm">
               {busy ? (
-                <p className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-800">
-                  <span aria-hidden="true" className="size-3 animate-spin rounded-full border-2 border-blue-700 border-t-transparent motion-reduce:animate-none" />
-                  <span className="tabular-nums">
-                    {chat.elapsedPrefix} {elapsed} {chat.elapsedUnit}
-                  </span>
-                  <span>·</span>
-                  <span>{phase === "waiting" ? chat.waiting : chat.streaming}</span>
-                </p>
+                <div>
+                  <p className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-800">
+                    <span aria-hidden="true" className="size-3 animate-spin rounded-full border-2 border-blue-700 border-t-transparent motion-reduce:animate-none" />
+                    <span className="tabular-nums">{chat.elapsed(elapsed)}</span>
+                    <span>·</span>
+                    <span>{phase === "waiting" ? chat.waiting : chat.streaming}</span>
+                  </p>
+                  <div aria-hidden="true" className="mt-2 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-slate-200">
+                    <div
+                      className="h-full rounded-full bg-blue-700 transition-[width] duration-300 motion-reduce:transition-none"
+                      style={{ width: `${Math.min(100, (elapsed / chatMaxWaitSeconds) * 100)}%` }}
+                    />
+                  </div>
+                  {elapsed > chatMaxWaitSeconds ? (
+                    <p className="mt-2 text-amber-900">{chat.slowNotice}</p>
+                  ) : null}
+                </div>
               ) : null}
               {phase === "done" && finishedSeconds !== null ? (
                 <p className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 font-semibold text-emerald-800">
@@ -287,10 +302,10 @@ export function ChatPanel() {
             {error ? (
               <div role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
                 <p className="font-semibold">{chat.errors[error.code]}</p>
-                {error.detail ? (
-                  <p className="mt-1 text-xs text-rose-700">
-                    {chat.errorCodeLabel}: {error.detail}
-                  </p>
+                {error.code !== "cancelled" && error.code !== "invalid_request" ? (
+                  <div className="mt-3">
+                    <KnowledgeLink text={question} />
+                  </div>
                 ) : null}
               </div>
             ) : null}
@@ -332,6 +347,39 @@ export function ChatPanel() {
           </div>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+/** Knowledge の画面を新しいタブで開く。質問文があればクリップボードに写しておく（画面側に質問を渡す URL は無い）。 */
+function KnowledgeLink({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const query = text.trim();
+  return (
+    <div className="flex flex-col items-start gap-1 sm:items-end">
+      <a
+        href={chat.knowledgeLink.url}
+        target="_blank"
+        rel="noreferrer"
+        onClick={() => {
+          if (!query || !navigator.clipboard) return;
+          navigator.clipboard.writeText(query).then(
+            () => setCopied(true),
+            () => setCopied(false),
+          );
+        }}
+        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-blue-800 ring-1 ring-inset ring-blue-300 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+      >
+        {chat.knowledgeLink.label}
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+        </svg>
+      </a>
+      {copied ? (
+        <p role="status" className="text-xs text-emerald-800">
+          {chat.knowledgeLink.copied}
+        </p>
+      ) : null}
     </div>
   );
 }

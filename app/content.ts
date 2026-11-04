@@ -383,6 +383,9 @@ export const demoSection: SectionHeading = {
   lead: "このページ自体が AppThrust 上の業務アプリです。架空の社内文書を Knowledge に取り込んであり、質問すると、Project 内の AI Gateway と llm（gemma3:4b、CPU）で回答を生成します。質問文も文書も外部に送りません。",
 };
 
+/** チャットの待ち時間の上限の目安（CPU 推論の実測で初回 135〜174 秒）。 */
+export const chatMaxWaitSeconds = 180;
+
 export const chat = {
   inferenceBadge: "推論先: Project 内 llm（gemma3:4b）／外部送信なし",
   status: {
@@ -410,21 +413,26 @@ export const chat = {
   openSource: "文書を開く",
   waiting: "クラスタ内 CPU で推論中",
   streaming: "回答を生成中",
-  elapsedUnit: "秒",
-  elapsedPrefix: "経過",
+  elapsed: (seconds: number) => `経過 ${seconds} 秒（最大 ${chatMaxWaitSeconds} 秒ほど）`,
+  slowNotice: "いつもより時間がかかっています。このままお待ちいただくか、Knowledge の画面でもお試しいただけます。",
   doneMessage: (seconds: number) => `回答まで ${seconds} 秒（クラスタ内 CPU）`,
-  waitHint: "CPU での推論のため、回答まで 20 秒〜3 分ほどかかります（初めての質問ほど長くなります）。",
+  waitHint: `CPU での推論のため、回答まで 20 秒〜${chatMaxWaitSeconds / 60} 分ほどかかります（初めての質問ほど長くなります）。`,
   emptyAnswer: "回答が返りませんでした。質問を変えてお試しください。",
   errors: {
     knowledge_not_connected: "Knowledge 未接続のため回答できません。",
-    knowledge_auth_failed: "Knowledge への認証に失敗しました。接続設定をご確認ください。",
-    knowledge_upstream_error: "Knowledge が応答を返しませんでした。少し待ってからもう一度お試しください。",
+    knowledge_auth_failed: "このページからの回答経路を準備中です。Knowledge の画面でお試しください。",
+    knowledge_upstream_error: "このページからの回答経路を準備中です。Knowledge の画面でお試しください。",
     invalid_request: "質問を入力してください（1,000 文字まで）。",
-    answer_failed: "回答の生成に失敗しました。少し待ってからもう一度お試しください。",
-    network: "通信が途中で切れました。もう一度お試しください。",
+    answer_failed: "このページからの回答経路を準備中です。Knowledge の画面でお試しください。",
+    network: "通信が途中で切れました。もう一度お試しいただくか、Knowledge の画面でお試しください。",
     cancelled: "回答の生成を中止しました。",
   },
-  errorCodeLabel: "エラーコード",
+  knowledgeLink: {
+    label: "Knowledge の画面で開く",
+    url: "https://knowledge.pj-2219a9bbd2d2.appthrust.ink/",
+    help: "Knowledge の画面（ログインが必要）でも、同じ文書・同じ llm に質問できます。「クエリ」に質問を入れて「質問する」を押してください。",
+    copied: "質問文をコピーしました。Knowledge の画面の「クエリ」に貼り付けて「質問する」を押してください。",
+  },
 };
 
 // --- 05 協業の形 -----------------------------------------------------------
