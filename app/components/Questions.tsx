@@ -14,7 +14,7 @@ export function Questions() {
           >
             {index + 1}
           </span>
-          <div>
+          <div className="min-w-0 [overflow-wrap:anywhere]">
             <h3 className="text-sm font-semibold text-blue-700">{item.topic}</h3>
             <p className="mt-1 font-bold text-slate-900">{item.question}</p>
             <p className="mt-2 text-sm text-slate-600">{item.why}</p>

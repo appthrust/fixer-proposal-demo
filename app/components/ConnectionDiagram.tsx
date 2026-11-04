@@ -113,9 +113,9 @@ export function ConnectionDiagram() {
           <rect x={16} y={40} width={1008} height={404} rx={18} fill={SLATE_SOFT} stroke={BLUE} strokeWidth={2} strokeDasharray="10 6" />
 
           {/* No route to the internet */}
-          <rect x={758} y={56} width={250} height={36} rx={18} fill={EMERALD_SOFT} stroke={EMERALD_LINE} strokeWidth={1.5} />
-          <path d="M782 74 l5 5 l10 -10" fill="none" stroke={EMERALD} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-          <text x={898} y={80} textAnchor="middle" fontSize={14} fontWeight={700} fill={EMERALD}>
+          <rect x={708} y={52} width={300} height={36} rx={18} fill={EMERALD_SOFT} stroke={EMERALD_LINE} strokeWidth={1.5} />
+          <path d="M728 70 l5 5 l10 -10" fill="none" stroke={EMERALD} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <text x={868} y={76} textAnchor="middle" fontSize={14} fontWeight={700} fill={EMERALD}>
             {d.noInternet}
           </text>
 
@@ -150,13 +150,13 @@ export function ConnectionDiagram() {
           ))}
 
           {/* Providers */}
-          <path d="M760 190 C 790 190 790 155 814 155" stroke={EMERALD_LINE} strokeWidth={2} fill="none" markerEnd="url(#conn-arrow-emerald)" />
-          <Node x={820} y={110} width={190} height={90} title={d.llm.title} sub={d.llm.sub} fill={EMERALD_SOFT} stroke={EMERALD_LINE} titleColor={EMERALD} />
-          <ProviderTag x={830} y={98} label={d.llm.tag} fill={EMERALD} color="#ffffff" />
+          <path d="M760 190 C 785 190 785 160 800 160" stroke={EMERALD_LINE} strokeWidth={2} fill="none" markerEnd="url(#conn-arrow-emerald)" />
+          <Node x={806} y={115} width={204} height={90} title={d.llm.title} sub={d.llm.sub} fill={EMERALD_SOFT} stroke={EMERALD_LINE} titleColor={EMERALD} />
+          <ProviderTag x={816} y={103} label={d.llm.tag} fill={EMERALD} color="#ffffff" />
 
-          <path d="M760 240 C 790 240 790 295 814 295" stroke={AMBER_LINE} strokeWidth={2} strokeDasharray="6 4" fill="none" markerEnd="url(#conn-arrow-amber)" />
-          <Node x={820} y={250} width={190} height={90} title={d.gaixer.title} sub={d.gaixer.sub} fill={AMBER_SOFT} stroke={AMBER_LINE} titleColor={AMBER} dashed />
-          <ProviderTag x={830} y={238} label={d.gaixer.tag} fill={AMBER} color="#ffffff" />
+          <path d="M760 240 C 785 240 785 295 800 295" stroke={AMBER_LINE} strokeWidth={2} strokeDasharray="6 4" fill="none" markerEnd="url(#conn-arrow-amber)" />
+          <Node x={806} y={250} width={204} height={90} title={d.gaixer.title} sub={d.gaixer.sub} fill={AMBER_SOFT} stroke={AMBER_LINE} titleColor={AMBER} dashed />
+          <ProviderTag x={816} y={238} label={d.gaixer.tag} fill={AMBER} color="#ffffff" />
 
           {/* Direct call from apps */}
           <path d="M245 250 V404 H670 V286" stroke={SLATE_500} strokeWidth={1.75} strokeDasharray="5 4" fill="none" markerEnd="url(#conn-arrow-blue)" />

@@ -37,7 +37,7 @@ export function Company() {
                 <path d="M9 12l2 2 4-4" />
               </svg>
             </span>
-            <div>
+            <div className="min-w-0 [overflow-wrap:anywhere]">
               <p className="font-bold text-slate-900">
                 {cert.label}
                 <span className="ml-2 text-sm font-normal tabular-nums text-slate-500">

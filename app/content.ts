@@ -344,7 +344,7 @@ export const connection: ConnectionContent = {
     embedding: { title: "Embedding", sub: "ベクトル化（クラスタ内）" },
     gateway: { title: "AI Gateway", sub: ["OpenAI 互換", "モデル許可・呼び出し記録"] },
     directCall: "アプリから直接も呼べる",
-    llm: { tag: "本日のデモ", title: "llm", sub: "gemma3:4b・CPU・クラスタ内" },
+    llm: { tag: "本日のデモ", title: "llm（同梱）", sub: "gemma3:4b・CPU" },
     gaixer: { tag: "FIXER 環境", title: "Sovereign GaiXer", sub: "OpenAI 互換 API" },
     caption:
       "利用者の質問は業務アプリから Knowledge に渡り、Knowledge が社内文書を検索したうえで AI Gateway に回答の生成を依頼します。Gateway は登録された推論先（本日は Project 内の llm、FIXER 環境では GaiXer）に送ります。どの段階でも外部インターネットには出ません。",
