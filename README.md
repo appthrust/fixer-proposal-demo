@@ -3,7 +3,15 @@
 1 ページ構成のご提案資料 + 社内文書に聞くライブデモ（Next.js App Router、データベース不要）。
 
 - 文言はすべて `app/content.ts` にまとまっている。表現の修正はこのファイルだけで行う。
+- 画面部品は `app/components/`。
 - ライブデモ（Section 04）は `app/components/ChatPanel.tsx`（クライアント）と `app/api/ask/route.ts`（サーバ）。サーバが Knowledge の Access Key をアサーションに交換し、`/api/knowledge/v1/answer` の SSE をそのままブラウザへ中継する。Access Key はブラウザに出さない。
+
+Run locally:
+
+```bash
+npm install
+npm run dev
+```
 
 ## Knowledge 接続
 
@@ -16,14 +24,6 @@ ComponentConnection `knowledge` が次の env を注入する。未設定なら 
 | `KNOWLEDGE_API_KEY` | Access Key（`apk_knowl_…`） |
 
 検索対象の collection は `fixer-demo`（`app/lib/knowledge.ts`）。接続状態は `GET /api/ask/status` → `{"connected": boolean}`。
-- 画面部品は `app/components/`。
-
-Run locally:
-
-```bash
-npm install
-npm run dev
-```
 
 ## Platform health probes
 
