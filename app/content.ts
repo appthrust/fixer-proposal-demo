@@ -413,7 +413,7 @@ export const chat = {
   elapsedUnit: "秒",
   elapsedPrefix: "経過",
   doneMessage: (seconds: number) => `回答まで ${seconds} 秒（クラスタ内 CPU）`,
-  waitHint: "CPU での推論のため、回答まで 20〜60 秒ほどかかります。",
+  waitHint: "CPU での推論のため、回答まで 20 秒〜3 分ほどかかります（初めての質問ほど長くなります）。",
   emptyAnswer: "回答が返りませんでした。質問を変えてお試しください。",
   errors: {
     knowledge_not_connected: "Knowledge 未接続のため回答できません。",
