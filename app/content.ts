@@ -383,6 +383,50 @@ export const demoSection: SectionHeading = {
   lead: "このページ自体が AppThrust 上の業務アプリです。架空の社内文書を Knowledge に取り込んであり、質問すると、Project 内の AI Gateway と llm（gemma3:4b、CPU）で回答を生成します。質問文も文書も外部に送りません。",
 };
 
+export const chat = {
+  inferenceBadge: "推論先: Project 内 llm（gemma3:4b）／外部送信なし",
+  status: {
+    checking: "接続を確認中",
+    connected: "Knowledge 接続済み",
+    disconnected: "Knowledge 未接続",
+  },
+  disconnectedNotice:
+    "この環境では Knowledge が未接続のため、回答できません。Project で Knowledge との接続が整うと、ここから質問できます。",
+  corpusNote:
+    "取り込んである文書: 架空の製造業「ミナト精機株式会社」の社内規程・点検手順・FAQ など 7 本（すべて架空です）",
+  examplesLabel: "例の質問",
+  examples: [
+    "ロボット溶接機RW-240の月次点検で、トルク確認する箇所と規定値は？",
+    "海外クラウドへのアップロードは誰の承認が必要？ 機密情報と公開資料で違いはある？",
+    "税抜30万円ちょうどの購入では、何社の相見積が必要？",
+  ],
+  inputLabel: "質問",
+  inputPlaceholder: "社内規程や手順について質問してください（Enter で送信、Shift+Enter で改行）",
+  submit: "質問する",
+  cancel: "中止",
+  questionLabel: "質問",
+  answerLabel: "回答",
+  citationsLabel: "回答の根拠（Knowledge の検索結果）",
+  openSource: "文書を開く",
+  waiting: "クラスタ内 CPU で推論中",
+  streaming: "回答を生成中",
+  elapsedUnit: "秒",
+  elapsedPrefix: "経過",
+  doneMessage: (seconds: number) => `回答まで ${seconds} 秒（クラスタ内 CPU）`,
+  waitHint: "CPU での推論のため、回答まで 20〜60 秒ほどかかります。",
+  emptyAnswer: "回答が返りませんでした。質問を変えてお試しください。",
+  errors: {
+    knowledge_not_connected: "Knowledge 未接続のため回答できません。",
+    knowledge_auth_failed: "Knowledge への認証に失敗しました。接続設定をご確認ください。",
+    knowledge_upstream_error: "Knowledge が応答を返しませんでした。少し待ってからもう一度お試しください。",
+    invalid_request: "質問を入力してください（1,000 文字まで）。",
+    answer_failed: "回答の生成に失敗しました。少し待ってからもう一度お試しください。",
+    network: "通信が途中で切れました。もう一度お試しください。",
+    cancelled: "回答の生成を中止しました。",
+  },
+  errorCodeLabel: "エラーコード",
+};
+
 // --- 05 協業の形 -----------------------------------------------------------
 
 export const partnershipSection: SectionHeading = {

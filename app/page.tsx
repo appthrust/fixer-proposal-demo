@@ -13,6 +13,7 @@ import {
 import { ArchitectureDiagram } from "./components/ArchitectureDiagram";
 import { Background } from "./components/Background";
 import { BuiltinApps } from "./components/BuiltinApps";
+import { ChatPanel } from "./components/ChatPanel";
 import { Company } from "./components/Company";
 import { Connection } from "./components/Connection";
 import { Footer } from "./components/Footer";
@@ -50,7 +51,7 @@ export default function Home() {
           <Connection />
         </Section>
         <Section heading={demoSection} tone="muted">
-          {null}
+          <ChatPanel />
         </Section>
         <Section heading={partnershipSection}>
           <Partnership />
