@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AppThrust ご提案 | 株式会社エクセディ様",
+  title: "AppThrust ご提案 | 株式会社FIXER様",
   description:
-    "生成 AI で見つけた知見を、データを外に出さずに業務アプリにして、全拠点へ届ける基盤のご提案",
+    "Sovereign GaiXer と AppThrust で、オンプレミスの生成 AI と業務アプリ基盤をセットで届ける協業のご提案",
   robots: { index: false, follow: false },
 };
 

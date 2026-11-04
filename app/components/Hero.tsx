@@ -15,6 +15,7 @@ export function Hero() {
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="rounded-full bg-white px-3 py-1 font-semibold text-slate-700 ring-1 ring-slate-200">
             {hero.customer}
+            <span className="ml-2 font-normal">{hero.recipient}</span>
           </span>
           <time
             dateTime={hero.date}

@@ -1,38 +1,29 @@
 import {
   aboutSection,
-  column,
+  backgroundSection,
   companySection,
-  currentSection,
-  divisionSection,
-  extendedUseCases,
-  featuresSection,
-  mappingSection,
+  connectionSection,
+  demoSection,
   nextSection,
-  packagesSection,
-  pocSection,
-  pricingSection,
+  partnershipSection,
+  questionsSection,
+  rolesSection,
   ui,
-  useCasesSection,
 } from "./content";
 import { ArchitectureDiagram } from "./components/ArchitectureDiagram";
-import { Challenges } from "./components/Challenges";
+import { Background } from "./components/Background";
+import { BuiltinApps } from "./components/BuiltinApps";
 import { Company } from "./components/Company";
-import { Column } from "./components/Column";
-import { Comparison } from "./components/Comparison";
-import { Division } from "./components/Division";
-import { ExtendedUseCases } from "./components/ExtendedUseCases";
-import { FactCards } from "./components/FactCards";
-import { FeatureStatus } from "./components/FeatureStatus";
+import { Connection } from "./components/Connection";
 import { Footer } from "./components/Footer";
 import { Hero } from "./components/Hero";
-import { Mapping } from "./components/Mapping";
 import { Nav } from "./components/Nav";
 import { NextSteps } from "./components/NextSteps";
-import { Packages } from "./components/Packages";
-import { PocTimeline } from "./components/PocTimeline";
-import { Pricing } from "./components/Pricing";
+import { Partnership } from "./components/Partnership";
+import { PocPlan } from "./components/PocPlan";
+import { Questions } from "./components/Questions";
+import { Roles } from "./components/Roles";
 import { Section } from "./components/Section";
-import { UseCases } from "./components/UseCases";
 import { ValueProps } from "./components/ValueProps";
 
 export default function Home() {
@@ -47,43 +38,31 @@ export default function Home() {
       <Nav />
       <Hero />
       <main id="content">
-        <Section heading={currentSection}>
-          <FactCards />
-          <Challenges />
+        <Section heading={backgroundSection}>
+          <Background />
         </Section>
-        <Section heading={divisionSection} tone="muted">
-          <Division />
-        </Section>
-        <Section heading={useCasesSection}>
-          <UseCases />
-          <Comparison />
-        </Section>
-        <Section heading={extendedUseCases.heading} tone="muted">
-          <ExtendedUseCases />
-        </Section>
-        <Section heading={column.heading}>
-          <Column />
-        </Section>
-        <Section heading={mappingSection} tone="muted">
-          <Mapping />
-        </Section>
-        <Section heading={aboutSection}>
+        <Section heading={aboutSection} tone="muted">
           <ArchitectureDiagram />
           <ValueProps />
+          <BuiltinApps />
         </Section>
-        <Section heading={featuresSection} tone="muted">
-          <FeatureStatus />
+        <Section heading={connectionSection}>
+          <Connection />
         </Section>
-        <Section heading={packagesSection}>
-          <Packages />
+        <Section heading={demoSection} tone="muted">
+          {null}
         </Section>
-        <Section heading={pocSection} tone="muted">
-          <PocTimeline />
+        <Section heading={partnershipSection}>
+          <Partnership />
         </Section>
-        <Section heading={pricingSection}>
-          <Pricing />
+        <Section heading={rolesSection} tone="muted">
+          <Roles />
+        </Section>
+        <Section heading={questionsSection}>
+          <Questions />
         </Section>
         <Section heading={nextSection} tone="muted">
+          <PocPlan />
           <NextSteps />
         </Section>
         <Section heading={companySection}>
