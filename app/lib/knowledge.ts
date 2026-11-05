@@ -1,5 +1,5 @@
 // Knowledge built-in app への接続（ComponentConnection `knowledge` が注入する env）。
-// Access Key はこのモジュールの外へ出さない。クライアントへ返すのは SSE 本文だけ。
+// Access Key はこのモジュールの外へ出さない。クライアントへ返すのは SSE 本文と、公開してよい表示用の値だけ。
 
 export type KnowledgeConfig = {
   url: string;
@@ -15,6 +15,26 @@ export function getKnowledgeConfig(): KnowledgeConfig | null {
   const apiKey = process.env.KNOWLEDGE_API_KEY?.trim();
   if (!url || !accessUrl || !apiKey) return null;
   return { url: url.replace(/\/+$/, ""), accessUrl: accessUrl.replace(/\/+$/, ""), apiKey };
+}
+
+/** ブラウザに渡してよい表示用の値（配信先 Project ごとに env で変わる）。 */
+export type DemoDisplayConfig = {
+  /** Knowledge の公開画面（`KNOWLEDGE_PUBLIC_URL`）。未接続・不正値なら null でリンクを出さない。 */
+  knowledgePublicUrl: string | null;
+  inferenceLabel: string;
+};
+
+export function getDemoDisplayConfig(defaultInferenceLabel: string): DemoDisplayConfig {
+  let knowledgePublicUrl: string | null = null;
+  const raw = process.env.KNOWLEDGE_PUBLIC_URL?.trim();
+  if (raw && URL.canParse(raw)) {
+    const parsed = new URL(raw);
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") knowledgePublicUrl = parsed.href;
+  }
+  return {
+    knowledgePublicUrl,
+    inferenceLabel: process.env.DEMO_INFERENCE_LABEL?.trim() || defaultInferenceLabel,
+  };
 }
 
 export class KnowledgeAuthError extends Error {}

@@ -16,7 +16,13 @@ type Phase = "idle" | "waiting" | "streaming" | "done" | "error";
 type ErrorCode = keyof typeof chat.errors;
 type ChatError = { code: ErrorCode; detail?: string };
 
-export function ChatPanel() {
+type ChatPanelProps = {
+  /** Knowledge の公開画面。null ならリンクを出さない。 */
+  knowledgePublicUrl: string | null;
+  inferenceLabel: string;
+};
+
+export function ChatPanel({ knowledgePublicUrl, inferenceLabel }: ChatPanelProps) {
   const [connection, setConnection] = useState<Connection>("checking");
   const [input, setInput] = useState("");
   const [question, setQuestion] = useState("");
@@ -183,7 +189,7 @@ export function ChatPanel() {
             <rect x="5" y="11" width="14" height="10" rx="2" />
             <path d="M8 11V8a4 4 0 0 1 8 0v3" />
           </svg>
-          {chat.inferenceBadge}
+          {chat.inferenceBadge(inferenceLabel)}
         </p>
         <ConnectionPill connection={connection} />
       </div>
@@ -252,10 +258,12 @@ export function ChatPanel() {
             )}
           </div>
           <p className="mt-2 text-xs text-slate-500">{chat.waitHint}</p>
-          <div className="mt-3 flex flex-col gap-2 rounded-xl bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-slate-600">{chat.knowledgeLink.help}</p>
-            <KnowledgeLink text={question || input} />
-          </div>
+          {knowledgePublicUrl ? (
+            <div className="mt-3 flex flex-col gap-2 rounded-xl bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs text-slate-600">{chat.knowledgeLink.help}</p>
+              <KnowledgeLink url={knowledgePublicUrl} text={question || input} />
+            </div>
+          ) : null}
         </form>
 
         {phase !== "idle" ? (
@@ -302,9 +310,9 @@ export function ChatPanel() {
             {error ? (
               <div role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
                 <p className="font-semibold">{chat.errors[error.code]}</p>
-                {error.code !== "cancelled" && error.code !== "invalid_request" ? (
+                {knowledgePublicUrl && error.code !== "cancelled" && error.code !== "invalid_request" ? (
                   <div className="mt-3">
-                    <KnowledgeLink text={question} />
+                    <KnowledgeLink url={knowledgePublicUrl} text={question} />
                   </div>
                 ) : null}
               </div>
@@ -352,13 +360,13 @@ export function ChatPanel() {
 }
 
 /** Knowledge の画面を新しいタブで開く。質問文があればクリップボードに写しておく（画面側に質問を渡す URL は無い）。 */
-function KnowledgeLink({ text }: { text: string }) {
+function KnowledgeLink({ url, text }: { url: string; text: string }) {
   const [copied, setCopied] = useState(false);
   const query = text.trim();
   return (
     <div className="flex flex-col items-start gap-1 sm:items-end">
       <a
-        href={chat.knowledgeLink.url}
+        href={url}
         target="_blank"
         rel="noreferrer"
         onClick={() => {

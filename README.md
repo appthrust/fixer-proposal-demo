@@ -22,9 +22,18 @@ ComponentConnection `knowledge` が次の env を注入する。未設定なら 
 | `KNOWLEDGE_URL` | Knowledge の内部 Service origin（回答 API の宛先） |
 | `KNOWLEDGE_ACCESS_URL` | アサーション交換先（`POST /api/v1/access/token`） |
 | `KNOWLEDGE_API_KEY` | Access Key（`apk_knowl_…`） |
+| `KNOWLEDGE_PUBLIC_URL` | Knowledge の公開画面。チャットの「Knowledge の画面で開く」リンク先。未設定ならリンクを出さない |
 
 検索対象の collection は `fixer-demo`（`app/lib/knowledge.ts`）。接続状態は `GET /api/ask/status` → `{"connected": boolean}`。
 
+配信先ごとに手で設定する env:
+
+| env | 用途 |
+|---|---|
+| `DEMO_INFERENCE_LABEL` | 推論先バッジの表示名（「推論先: <値>／外部送信なし」）。未設定なら「Project 内 llm（gemma3:4b）」 |
+
+Project ID はコードに持たない。`/` はこれらの env をリクエスト時に読むため動的レンダリングになる。
+
 ## Platform health probes
 
-The platform probes `GET /healthz` for startup and liveness, and `GET /` for readiness. Both are static and need no environment variables.
+The platform probes `GET /healthz` for startup and liveness, and `GET /` for readiness. Both need no environment variables (`/healthz` is static; `/` renders per request and works with every env unset).

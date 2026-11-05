@@ -380,14 +380,17 @@ export const demoSection: SectionHeading = {
   id: "demo",
   eyebrow: "04",
   title: "ライブデモ: 社内文書に聞く",
-  lead: "このページ自体が AppThrust 上の業務アプリです。架空の社内文書を Knowledge に取り込んであり、質問すると、Project 内の AI Gateway と llm（gemma3:4b、CPU）で回答を生成します。質問文も文書も外部に送りません。",
+  lead: "このページ自体が AppThrust 上の業務アプリです。架空の社内文書を Knowledge に取り込んであり、質問すると、Project 内の AI Gateway を通して、クラスタ内の LLM で回答を生成します。質問文も文書も外部に送りません。",
 };
 
 /** チャットの待ち時間の上限の目安（CPU 推論の実測で初回 135〜174 秒）。 */
 export const chatMaxWaitSeconds = 180;
 
+/** 推論先バッジの既定値。配信先ごとに env `DEMO_INFERENCE_LABEL` で差し替える。 */
+export const defaultInferenceLabel = "Project 内 llm（gemma3:4b）";
+
 export const chat = {
-  inferenceBadge: "推論先: Project 内 llm（gemma3:4b）／外部送信なし",
+  inferenceBadge: (label: string) => `推論先: ${label}／外部送信なし`,
   status: {
     checking: "接続を確認中",
     connected: "Knowledge 接続済み",
@@ -411,12 +414,12 @@ export const chat = {
   answerLabel: "回答",
   citationsLabel: "回答の根拠（Knowledge の検索結果）",
   openSource: "文書を開く",
-  waiting: "クラスタ内 CPU で推論中",
+  waiting: "クラスタ内で推論中",
   streaming: "回答を生成中",
   elapsed: (seconds: number) => `経過 ${seconds} 秒（最大 ${chatMaxWaitSeconds} 秒ほど）`,
   slowNotice: "いつもより時間がかかっています。このままお待ちいただくか、Knowledge の画面でもお試しいただけます。",
-  doneMessage: (seconds: number) => `回答まで ${seconds} 秒（クラスタ内 CPU）`,
-  waitHint: `CPU での推論のため、回答まで 20 秒〜${chatMaxWaitSeconds / 60} 分ほどかかります（初めての質問ほど長くなります）。`,
+  doneMessage: (seconds: number) => `回答まで ${seconds} 秒（クラスタ内で推論）`,
+  waitHint: `回答まで数十秒〜${chatMaxWaitSeconds / 60} 分ほどかかることがあります（初めての質問ほど長くなります）。`,
   emptyAnswer: "回答が返りませんでした。質問を変えてお試しください。",
   errors: {
     knowledge_not_connected: "Knowledge 未接続のため回答できません。",
@@ -429,8 +432,7 @@ export const chat = {
   },
   knowledgeLink: {
     label: "Knowledge の画面で開く",
-    url: "https://knowledge.pj-2219a9bbd2d2.appthrust.ink/",
-    help: "Knowledge の画面（ログインが必要）でも、同じ文書・同じ llm に質問できます。「クエリ」に質問を入れて「質問する」を押してください。",
+    help: "Knowledge の画面（ログインが必要）でも、同じ文書・同じ LLM に質問できます。「クエリ」に質問を入れて「質問する」を押してください。",
     copied: "質問文をコピーしました。Knowledge の画面の「クエリ」に貼り付けて「質問する」を押してください。",
   },
 };
