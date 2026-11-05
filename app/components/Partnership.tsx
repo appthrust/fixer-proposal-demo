@@ -4,7 +4,7 @@ export function Partnership() {
   const price = partnership.priceReference;
   return (
     <div>
-      <ul className="grid gap-4 md:grid-cols-2">
+      <ul className="grid gap-4 lg:grid-cols-3">
         {partnership.options.map((option) => (
           <li
             key={option.key}

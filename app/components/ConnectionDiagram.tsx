@@ -1,84 +1,5 @@
 import { connection } from "@/app/content";
-
-const BLUE = "#1d4ed8";
-const BLUE_SOFT = "#eff6ff";
-const BLUE_LINE = "#93c5fd";
-const EMERALD = "#047857";
-const EMERALD_SOFT = "#ecfdf5";
-const EMERALD_LINE = "#059669";
-const AMBER = "#b45309";
-const AMBER_SOFT = "#fffbeb";
-const AMBER_LINE = "#d97706";
-const SLATE_900 = "#0f172a";
-const SLATE_700 = "#334155";
-const SLATE_500 = "#64748b";
-const SLATE_SOFT = "#f8fafc";
-
-type NodeProps = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  title: string;
-  sub?: string;
-  fill?: string;
-  stroke?: string;
-  titleColor?: string;
-  subColor?: string;
-  dashed?: boolean;
-};
-
-function Node({
-  x,
-  y,
-  width,
-  height,
-  title,
-  sub,
-  fill = BLUE_SOFT,
-  stroke = BLUE_LINE,
-  titleColor = SLATE_900,
-  subColor = SLATE_700,
-  dashed = false,
-}: NodeProps) {
-  const cx = x + width / 2;
-  const cy = y + height / 2;
-  return (
-    <g>
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        rx={10}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={1.5}
-        strokeDasharray={dashed ? "6 4" : undefined}
-      />
-      <text x={cx} y={sub ? cy - 4 : cy + 6} textAnchor="middle" fontSize={17} fontWeight={700} fill={titleColor}>
-        {title}
-      </text>
-      {sub ? (
-        <text x={cx} y={cy + 18} textAnchor="middle" fontSize={13} fill={subColor}>
-          {sub}
-        </text>
-      ) : null}
-    </g>
-  );
-}
-
-function ProviderTag({ x, y, label, fill, color }: { x: number; y: number; label: string; fill: string; color: string }) {
-  const width = label.length * 13 + 20;
-  return (
-    <g>
-      <rect x={x} y={y} width={width} height={22} rx={11} fill={fill} />
-      <text x={x + width / 2} y={y + 15} textAnchor="middle" fontSize={12} fontWeight={700} fill={color}>
-        {label}
-      </text>
-    </g>
-  );
-}
+import { ArrowMarkers, C, Chip, Node, Tag } from "./diagramParts";
 
 export function ConnectionDiagram() {
   const d = connection.diagram;
@@ -86,7 +7,7 @@ export function ConnectionDiagram() {
     <figure className="rounded-2xl border border-slate-200 bg-white p-4 break-inside-avoid sm:p-6">
       <div className="overflow-x-auto">
         <svg
-          viewBox="0 0 1040 460"
+          viewBox="0 0 1040 500"
           role="img"
           aria-labelledby="connection-title"
           aria-describedby="connection-caption"
@@ -94,76 +15,91 @@ export function ConnectionDiagram() {
           fontFamily="inherit"
         >
           <title id="connection-title">{d.title}</title>
-          <defs>
-            <marker id="conn-arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0 0L10 5L0 10z" fill={BLUE} />
-            </marker>
-            <marker id="conn-arrow-emerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0 0L10 5L0 10z" fill={EMERALD_LINE} />
-            </marker>
-            <marker id="conn-arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0 0L10 5L0 10z" fill={AMBER_LINE} />
-            </marker>
-          </defs>
+          <ArrowMarkers prefix="conn" />
 
-          {/* Closed customer environment */}
-          <text x={20} y={28} fontSize={18} fontWeight={700} fill={BLUE}>
+          {/* Customer LAN */}
+          <text x={20} y={28} fontSize={18} fontWeight={700} fill={C.blue}>
             {d.boundary}
           </text>
-          <rect x={16} y={40} width={1008} height={404} rx={18} fill={SLATE_SOFT} stroke={BLUE} strokeWidth={2} strokeDasharray="10 6" />
+          <rect x={16} y={44} width={1008} height={444} rx={18} fill={C.slateSoft} stroke={C.blue} strokeWidth={2} strokeDasharray="10 6" />
 
-          {/* No route to the internet */}
-          <rect x={708} y={52} width={300} height={36} rx={18} fill={EMERALD_SOFT} stroke={EMERALD_LINE} strokeWidth={1.5} />
-          <path d="M728 70 l5 5 l10 -10" fill="none" stroke={EMERALD} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-          <text x={868} y={76} textAnchor="middle" fontSize={14} fontWeight={700} fill={EMERALD}>
+          {/* AI calls stay inside */}
+          <rect x={758} y={6} width={250} height={30} rx={15} fill={C.emeraldSoft} stroke={C.emeraldLine} strokeWidth={1.5} />
+          <path d="M776 21 l5 5 l10 -10" fill="none" stroke={C.emerald} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <text x={896} y={26} textAnchor="middle" fontSize={14} fontWeight={700} fill={C.emerald}>
             {d.noInternet}
           </text>
 
+          {/* AppThrust zone */}
+          <rect x={104} y={104} width={580} height={330} rx={14} fill="#ffffff" stroke={C.blueLine} strokeWidth={1.5} />
+          <text x={120} y={132} fontSize={15} fontWeight={700} fill={C.blue}>
+            {d.appthrustZone}
+          </text>
+
+          {/* GaiXer zone */}
+          <rect x={716} y={104} width={292} height={330} rx={14} fill={C.amberSoft} stroke={C.amberLine} strokeWidth={1.5} />
+          <text x={732} y={132} fontSize={15} fontWeight={700} fill={C.amber}>
+            {d.gaixerZone}
+          </text>
+          <Tag x={900} y={93} label={d.gaixerTag} fill={C.amber} color="#ffffff" />
+
           {/* User */}
-          <circle cx={80} cy={192} r={14} fill="none" stroke={SLATE_700} strokeWidth={2} />
-          <path d="M56 236 a24 20 0 0 1 48 0" fill="none" stroke={SLATE_700} strokeWidth={2} />
-          <text x={80} y={262} textAnchor="middle" fontSize={14} fontWeight={600} fill={SLATE_700}>
+          <circle cx={58} cy={200} r={14} fill="none" stroke={C.slate700} strokeWidth={2} />
+          <path d="M34 244 a24 20 0 0 1 48 0" fill="none" stroke={C.slate700} strokeWidth={2} />
+          <text x={58} y={270} textAnchor="middle" fontSize={14} fontWeight={600} fill={C.slate700}>
             {d.user}
           </text>
-          <path d="M112 210 H154" stroke={BLUE} strokeWidth={2} fill="none" markerEnd="url(#conn-arrow-blue)" />
+          <path d="M86 218 H122" stroke={C.blue} strokeWidth={2} fill="none" markerEnd="url(#conn-blue)" />
 
           {/* Business app */}
-          <Node x={160} y={170} width={170} height={80} title={d.app.title} sub={d.app.sub} fill={BLUE} stroke={BLUE} titleColor="#ffffff" subColor="#dbeafe" />
-          <path d="M330 210 H364" stroke={BLUE} strokeWidth={2} fill="none" markerEnd="url(#conn-arrow-blue)" />
+          <Node x={128} y={178} width={150} height={80} title={d.app.title} sub={d.app.sub} fill={C.blue} stroke={C.blue} titleColor="#ffffff" subColor="#dbeafe" />
+          <path d="M278 218 H300" stroke={C.blue} strokeWidth={2} fill="none" markerEnd="url(#conn-blue)" />
 
           {/* Knowledge + embedding */}
-          <Node x={370} y={170} width={170} height={80} title={d.knowledge.title} sub={d.knowledge.sub} />
-          <path d="M455 250 V294" stroke={BLUE} strokeWidth={2} fill="none" markerEnd="url(#conn-arrow-blue)" />
-          <Node x={370} y={300} width={170} height={64} title={d.embedding.title} sub={d.embedding.sub} fill={EMERALD_SOFT} stroke={EMERALD_LINE} titleColor={EMERALD} />
-          <path d="M540 210 H574" stroke={BLUE} strokeWidth={2} fill="none" markerEnd="url(#conn-arrow-blue)" />
+          <Node x={306} y={178} width={140} height={80} title={d.knowledge.title} sub={d.knowledge.sub} />
+          <path d="M376 258 V292" stroke={C.blue} strokeWidth={2} fill="none" markerEnd="url(#conn-blue)" />
+          <Node x={306} y={298} width={140} height={60} title={d.embedding.title} sub={d.embedding.sub} fill={C.emeraldSoft} stroke={C.emeraldLine} titleColor={C.emerald} />
+          <path d="M446 218 H470" stroke={C.blue} strokeWidth={2} fill="none" markerEnd="url(#conn-blue)" />
 
           {/* AI Gateway */}
-          <rect x={580} y={140} width={180} height={140} rx={12} fill="#ffffff" stroke={BLUE} strokeWidth={2} />
-          <path d="M580 152a12 12 0 0 1 12 -12h156a12 12 0 0 1 12 12v32h-180z" fill={BLUE} />
-          <text x={670} y={170} textAnchor="middle" fontSize={17} fontWeight={700} fill="#ffffff">
+          <rect x={476} y={148} width={184} height={140} rx={12} fill="#ffffff" stroke={C.blue} strokeWidth={2} />
+          <path d="M476 160a12 12 0 0 1 12 -12h160a12 12 0 0 1 12 12v32h-184z" fill={C.blue} />
+          <text x={568} y={178} textAnchor="middle" fontSize={17} fontWeight={700} fill="#ffffff">
             {d.gateway.title}
           </text>
           {d.gateway.sub.map((line, index) => (
-            <text key={line} x={670} y={214 + index * 26} textAnchor="middle" fontSize={index === 0 ? 15 : 12} fontWeight={index === 0 ? 700 : 500} fill={index === 0 ? BLUE : SLATE_700}>
+            <text key={line} x={568} y={228 + index * 26} textAnchor="middle" fontSize={index === 0 ? 15 : 12} fontWeight={index === 0 ? 700 : 500} fill={index === 0 ? C.blue : C.slate700}>
               {line}
             </text>
           ))}
 
-          {/* Providers */}
-          <path d="M760 190 C 785 190 785 160 800 160" stroke={EMERALD_LINE} strokeWidth={2} fill="none" markerEnd="url(#conn-arrow-emerald)" />
-          <Node x={806} y={115} width={204} height={90} title={d.llm.title} sub={d.llm.sub} fill={EMERALD_SOFT} stroke={EMERALD_LINE} titleColor={EMERALD} />
-          <ProviderTag x={816} y={103} label={d.llm.tag} fill={EMERALD} color="#ffffff" />
+          {/* Today: bundled llm */}
+          <path d="M620 288 V332" stroke={C.emeraldLine} strokeWidth={2} fill="none" markerEnd="url(#conn-emerald)" />
+          <Node x={476} y={338} width={184} height={72} title={d.llm.title} sub={d.llm.sub} fill={C.emeraldSoft} stroke={C.emeraldLine} titleColor={C.emerald} />
+          <Tag x={486} y={326} label={d.llm.tag} fill={C.emerald} color="#ffffff" />
 
-          <path d="M760 240 C 785 240 785 295 800 295" stroke={AMBER_LINE} strokeWidth={2} strokeDasharray="6 4" fill="none" markerEnd="url(#conn-arrow-amber)" />
-          <Node x={806} y={250} width={204} height={90} title={d.gaixer.title} sub={d.gaixer.sub} fill={AMBER_SOFT} stroke={AMBER_LINE} titleColor={AMBER} dashed />
-          <ProviderTag x={816} y={238} label={d.gaixer.tag} fill={AMBER} color="#ffffff" />
+          {/* FIXER environment: GaiXer API gateway → LLM in the PGX */}
+          <path d="M660 196 H734" stroke={C.amberLine} strokeWidth={2.25} strokeDasharray="6 4" fill="none" markerEnd="url(#conn-amber)" />
+          <rect x={666} y={206} width={64} height={38} rx={4} fill="#ffffff" />
+          {d.repoint.map((line, index) => (
+            <text key={line} x={698} y={221 + index * 15} textAnchor="middle" fontSize={11} fontWeight={700} fill={C.amber}>
+              {line}
+            </text>
+          ))}
+          <Node x={740} y={148} width={244} height={96} title={d.apiGateway.title} sub={d.apiGateway.sub} fill="#ffffff" stroke={C.amberLine} titleColor={C.amber} />
+          <path d="M862 244 V292" stroke={C.amberLine} strokeWidth={2} fill="none" markerEnd="url(#conn-amber)" />
+          <Node x={740} y={298} width={244} height={80} title={d.gaixerLlm.title} sub={d.gaixerLlm.sub} fill="#ffffff" stroke={C.amberLine} titleColor={C.amber} />
 
           {/* Direct call from apps */}
-          <path d="M245 250 V404 H670 V286" stroke={SLATE_500} strokeWidth={1.75} strokeDasharray="5 4" fill="none" markerEnd="url(#conn-arrow-blue)" />
-          <rect x={359} y={392} width={196} height={24} rx={4} fill={SLATE_SOFT} />
-          <text x={457} y={409} textAnchor="middle" fontSize={13} fontWeight={600} fill={SLATE_700}>
+          <path d="M203 258 V418 H458 V244 H470" stroke={C.slate500} strokeWidth={1.75} strokeDasharray="5 4" fill="none" markerEnd="url(#conn-slate)" />
+          <rect x={226} y={406} width={200} height={24} rx={4} fill="#ffffff" />
+          <text x={326} y={423} textAnchor="middle" fontSize={13} fontWeight={600} fill={C.slate700}>
             {d.directCall}
           </text>
+
+          {/* Records on both sides */}
+          <Chip cx={394} y={448} label={d.logs.appthrust} color={C.blue} fill={C.blueSoft} stroke={C.blueLine} />
+          <Chip cx={862} y={448} label={d.logs.gaixer} color={C.amber} fill="#ffffff" stroke={C.amberLine} />
         </svg>
       </div>
       <figcaption id="connection-caption" className="mt-4 text-sm text-slate-600">

@@ -1,9 +1,10 @@
 // 株式会社FIXER様向けご提案ページの文言。
 // 文言の修正はこのファイルだけで完結するようにしている（コンポーネント側に文言を書かない）。
 
-export type FeatureStatus = "available" | "developing" | "planned";
+export type FeatureStatus = "verified" | "available" | "developing" | "planned";
 
 export const statusLabels: Record<FeatureStatus, string> = {
+  verified: "検証済み",
   available: "提供中",
   developing: "開発中",
   planned: "計画中",
@@ -35,6 +36,14 @@ export type Hero = {
 export type BackgroundContent = {
   proposal: { label: string; quote: string; note: string };
   understanding: { label: string; summary: string };
+  gaixer: {
+    title: string;
+    summary: string;
+    layersLabel: string;
+    layers: { name: string; role: string }[];
+    facts: { title: string; body: string }[];
+    source: string;
+  };
   points: { title: string; body: string }[];
 };
 
@@ -84,20 +93,79 @@ export type ConnectionDiagram = {
   boundary: string;
   noInternet: string;
   user: string;
+  appthrustZone: string;
+  gaixerZone: string;
+  gaixerTag: string;
   app: { title: string; sub: string };
   knowledge: { title: string; sub: string };
   embedding: { title: string; sub: string };
   gateway: { title: string; sub: string[] };
   directCall: string;
   llm: { tag: string; title: string; sub: string };
-  gaixer: { tag: string; title: string; sub: string };
+  apiGateway: { title: string; sub: string };
+  gaixerLlm: { title: string; sub: string };
+  repoint: [string, string];
+  logs: { appthrust: string; gaixer: string };
   caption: string;
 };
 
+export type ConnectionForm = {
+  key: string;
+  name: string;
+  status: string;
+  summary: string;
+};
+
+export type OnpremDiagram = {
+  title: string;
+  boundary: string;
+  dataStays: string;
+  host: { title: string; sub: string };
+  pmc: { title: string; spec: string; items: string[] };
+  worker: { title: string; spec: string; items: string[] };
+  join: [string, string];
+  pgx: { title: string; sub: string; items: string[] };
+  aiCall: [string, string];
+  customer: { title: string; items: string[] };
+  registry: { title: string; sub: string; note: [string, string] };
+  caption: string;
+};
+
+export type OnpremContent = {
+  title: string;
+  lead: string;
+  diagram: OnpremDiagram;
+  specs: {
+    title: string;
+    labels: { item: string; value: string; status: string };
+    rows: { item: string; value: string; status: FeatureStatus }[];
+    note: string;
+  };
+  requirements: { title: string; items: { title: string; body: string }[] };
+};
+
 export type ConnectionContent = {
+  formA: ConnectionForm;
   diagram: ConnectionDiagram;
-  points: { title: string; body: string }[];
-  confirm: { title: string; items: string[]; note: string };
+  onprem: OnpremContent;
+  match: {
+    title: string;
+    labels: { gaixer: string; appthrust: string };
+    rows: { gaixer: string; appthrust: string }[];
+    note: string;
+  };
+  formB: ConnectionForm & {
+    stackLabel: string;
+    stack: { layer: string; content: string; highlight: boolean }[];
+    verify: { title: string; items: { title: string; body: string }[] };
+    note: string;
+  };
+  split: {
+    title: string;
+    lead: string;
+    columns: { key: "gaixer" | "appthrust" | "overlap"; title: string; items: string[] }[];
+    note: string;
+  };
 };
 
 export type PartnershipOption = {
@@ -133,6 +201,7 @@ export type RolesContent = {
 export type QuestionItem = {
   topic: string;
   question: string;
+  details: string[];
   why: string;
 };
 
@@ -176,7 +245,7 @@ export const hero: Hero = {
   thesis:
     "情報を外に出せない企業に、オンプレミスの生成 AI と業務アプリ基盤をセットで届ける",
   coexistence:
-    "Sovereign GaiXer が「社内で動く生成 AI」を担い、AppThrust が「その AI を使う業務アプリを部門ごとに作り・公開し・運用する基盤」を担います。AppThrust の AI 機能は OpenAI 互換のエンドポイントに接続する設計のため、推論先を GaiXer にすれば、同じ仕組みのまま閉域で動きます。",
+    "Sovereign GaiXer が「社内で動く生成 AI とその共通部分（LLM の制御・安全対策・ユーザー管理・監査ログ）」を担い、AppThrust が「その AI を使う業務アプリを部門ごとに作り・公開し・運用する基盤」を担います。AppThrust の AI 呼び出しは AI Gateway に集まっているため、接続先を GaiXer の API 窓口に向ければ、業務アプリを変えずに社内 LAN の中で動きます。",
   flow: [
     {
       role: "AI を動かす",
@@ -186,7 +255,7 @@ export const hero: Hero = {
     {
       role: "AI につなぐ",
       product: "AI Gateway（AppThrust）",
-      text: "Project 内の AI 利用はすべて Gateway を通り、GaiXer の OpenAI 互換 API へ送られる",
+      text: "Project 内の AI 利用はすべて Gateway を通り、接続先を GaiXer の API 窓口に向けて送られる",
     },
     {
       role: "業務で使う",
@@ -203,32 +272,59 @@ export const backgroundSection: SectionHeading = {
   id: "background",
   eyebrow: "01",
   title: "背景",
-  lead: "CEATEC 2026 の会場で頂いたご提案を、私たちは次のように受け止めています。",
+  lead: "CEATEC 2026 の会場で頂いたご提案と、公開情報から読み取った Sovereign GaiXer の姿を、私たちは次のように受け止めています。",
 };
 
 export const background: BackgroundContent = {
   proposal: {
     label: "CEATEC でのご提案",
     quote: "貴社アプリケーションをオフロードして、Sovereign GaiXer に組み入れる",
-    note: "AppThrust を GaiXer の上で動かし、GaiXer の提供価値の一部として届けるというお話と理解しています。",
+    note: "GaiXer は、AI-OS が LLM の制御や安全対策を引き受け、業務アプリはアプリストアから届ける製品です。そのストアの「作り手」として AppThrust を位置づけるお話と理解しています。",
   },
   understanding: {
     label: "私たちの理解",
     summary:
-      "情報を外に出せない企業に、オンプレミスの生成 AI と業務アプリ基盤をセットで届ける。",
+      "GaiXer アプリストアの作り手（業務ソフトメーカー・パートナー枠）として、AppThrust で作った業務アプリを GaiXer のお客様に届ける。",
+  },
+  gaixer: {
+    title: "Sovereign GaiXer の要点",
+    summary:
+      "社内 LAN に 1 本つなぐだけで使える、オンプレミスの生成 AI アプライアンスです。インターネット接続は不要で、社内データを外に送らずに AI 処理が本体の中で完結します。",
+    layersLabel: "4 つの層",
+    layers: [
+      { name: "PGX（筐体）", role: "Lenovo ThinkStation PGX。NVIDIA Blackwell、128GB unified memory" },
+      { name: "Sovereign GaiXer（AI-OS）", role: "LLM の制御、安全対策、ユーザー管理、監査ログ。RAG（社内文書連携）は標準機能" },
+      { name: "GaiXer アプリストア", role: "FIXER・販売パートナー・導入企業・業務ソフトメーカーがアプリを登録して届ける" },
+      { name: "業務アプリ", role: "チャット、議事録、プレゼン資料作成、医療向け SOAP など" },
+    ],
+    facts: [
+      {
+        title: "アプライアンス",
+        body: "一括買い切り 3,806,400 円（税別）、生成回数や利用人数による追加課金なし。出荷後 1〜2 営業日で届き、3 年保証付き。",
+      },
+      {
+        title: "API 窓口",
+        body: "社内システムから呼べる一本の窓口（LLM ゲートウェイ）。クラウド型生成 AI と同じ呼び出し方に対応し、接続先を本体に向け変えるだけ。利用者管理・監査ログはここで一括。",
+      },
+      {
+        title: "アプリストア",
+        body: "お客様ごとに AI 基盤を構築・保守しなくても AI-OS が引き受け、作り手はストアからオンプレへアプリを届けられる。",
+      },
+    ],
+    source: "出典: sovereign.gaixer.com（トップページ、製品解説シリーズ第 6・8・10 回）2026-11-05 閲覧",
   },
   points: [
     {
-      title: "AI だけでは業務は変わらない",
-      body: "社内で生成 AI が動いても、それを使う業務アプリがなければ、使い道は「人がチャットで聞く」にとどまります。",
+      title: "共通部分は AI-OS が引き受ける",
+      body: "LLM の制御・安全対策・ユーザー管理・監査ログは GaiXer が持ちます。アプリの作り手は、業務の中身に集中できます。",
     },
     {
-      title: "業務アプリにも同じ閉域が要る",
-      body: "AI が閉域で動いていても、業務アプリやナレッジ検索が外部 SaaS にあれば、データは結局外に出ます。両方を同じ環境に置く必要があります。",
+      title: "ストアの価値は作り手の数で決まる",
+      body: "社内で生成 AI が動いても、使う業務アプリがなければ使い道は「人がチャットで聞く」にとどまります。作り手が増えるほど、選べるアプリが増えます。",
     },
     {
-      title: "部門ごとに作り、安全に運ぶ",
-      body: "情シスがすべてを作るのではなく、部門が業務アプリを作り、権限・更新・監視は基盤が担う。この部分を AppThrust が受け持ちます。",
+      title: "AppThrust は業務アプリの作り手",
+      body: "AppThrust は、業務アプリを部門ごとに作り・公開し・運用する基盤です。GaiXer の AI を使う業務アプリを、閉域のまま届けることを目指します。",
     },
   ],
 };
@@ -329,48 +425,208 @@ export const builtinApps: BuiltinAppsContent = {
 export const connectionSection: SectionHeading = {
   id: "connection",
   eyebrow: "03",
-  title: "技術接続: AppThrust の AI は GaiXer に向けられる",
-  lead: "AppThrust の中で AI を使う部品は、すべて Project 内の AI Gateway を経由します。Gateway は OpenAI 互換のエンドポイントに要求を送るため、推論先を差し替えるだけで、同じ経路のまま GaiXer で動きます。",
+  title: "技術接続: 2 つの接続形",
+  lead: "AppThrust もお客様の社内（オンプレミス）で動かす想定です。AppThrust の中で AI を使う部品は、すべて Project 内の AI Gateway を経由します。GaiXer とのつなぎ方は 2 つ考えられます。まず形 A（隣に置く）で接続を確かめ、形 B（同梱）は PoC の結果で判断することを提案します。",
 };
 
 export const connection: ConnectionContent = {
+  formA: {
+    key: "A",
+    name: "隣に置く",
+    status: "まずこの形で（本日のデモと同じ経路）",
+    summary:
+      "同じ社内 LAN の x86 ホストで AppThrust を動かし、AI Gateway の接続先を GaiXer の API 窓口に向けます。業務アプリと Knowledge は変えません。本日のデモは同梱の llm（gemma3:4b、CPU）が推論先で、FIXER 様の環境ではそこが GaiXer に替わります。",
+  },
   diagram: {
-    title: "AI 呼び出しの経路",
-    boundary: "お客様の環境（閉域）",
-    noInternet: "外部インターネットへの経路なし",
+    title: "形 A: AI 呼び出しの経路",
+    boundary: "お客様の社内 LAN",
+    noInternet: "AI 呼び出しは社外に出ない",
     user: "利用者",
+    appthrustZone: "AppThrust（社内の x86 ホスト）",
+    gaixerZone: "PGX · Sovereign GaiXer",
+    gaixerTag: "FIXER 環境",
     app: { title: "業務アプリ", sub: "本ページのデモ" },
     knowledge: { title: "Knowledge", sub: "検索・回答（RAG）" },
-    embedding: { title: "Embedding", sub: "ベクトル化（クラスタ内）" },
-    gateway: { title: "AI Gateway", sub: ["OpenAI 互換", "モデル許可・呼び出し記録"] },
+    embedding: { title: "Embedding", sub: "ベクトル化" },
+    gateway: { title: "AI Gateway", sub: ["接続先を登録", "モデル許可・呼び出し記録"] },
     directCall: "アプリから直接も呼べる",
     llm: { tag: "本日のデモ", title: "llm（同梱）", sub: "gemma3:4b・CPU" },
-    gaixer: { tag: "FIXER 環境", title: "Sovereign GaiXer", sub: "OpenAI 互換 API" },
+    apiGateway: { title: "API 窓口", sub: "LLM ゲートウェイ" },
+    gaixerLlm: { title: "LLM（PGX 内）", sub: "推論エンジン vLLM / Ollama 等" },
+    repoint: ["接続先を", "向け変える"],
+    logs: {
+      appthrust: "記録: AI Gateway の呼び出し記録（AppThrust 側）",
+      gaixer: "記録: API 窓口の監査ログ（GaiXer 側）",
+    },
     caption:
-      "利用者の質問は業務アプリから Knowledge に渡り、Knowledge が社内文書を検索したうえで AI Gateway に回答の生成を依頼します。Gateway は登録された推論先（本日は Project 内の llm、FIXER 環境では GaiXer）に送ります。どの段階でも外部インターネットには出ません。",
+      "利用者の質問は業務アプリから Knowledge に渡り、Knowledge が社内文書を検索したうえで AI Gateway に回答の生成を依頼します。Gateway は登録された接続先に送ります。本日は同じ Project 内の llm、FIXER 様の環境では GaiXer の API 窓口で、その先は PGX の中の LLM です。AI 呼び出しの経路はすべて社内 LAN の中にあり、外部インターネットには出ません。呼び出しの記録は AppThrust 側と GaiXer 側の両方に残ります。",
   },
-  points: [
-    {
-      title: "入口は 1 つ",
-      body: "Knowledge の回答生成も、業務アプリからの AI 呼び出しも、Project 内の AI Gateway を通ります。推論先の資格情報を持つのは Gateway だけです。",
+  onprem: {
+    title: "形 A の中身: AppThrust のオンプレ配置",
+    lead: "お客様の LAN の中に、AppThrust の管理クラスタ（PMC）と、業務アプリを動かすワーカーホストを置きます。ワーカーはお客様の Linux ホスト（VM またはベアメタル、x86_64）を SSH で登録し、k0s を入れて参加させます。各 Project の制御プレーンは管理クラスタの上で動きます（k0smotron の hosted control plane）。",
+    diagram: {
+      title: "AppThrust のオンプレ配置（最小構成）と GaiXer",
+      boundary: "お客様の社内 LAN",
+      dataStays: "推論・業務データは社外に出ない",
+      host: { title: "x86 ホスト 1 台", sub: "x86_64・32 GiB（VM 2 つ）" },
+      pmc: {
+        title: "管理クラスタ（PMC）VM",
+        spec: "8 vCPU / 20 GiB / 100 GiB SSD",
+        items: ["管理画面・基盤の配送", "各 Project の制御プレーン", "MetalLB（LAN 内 VIP）"],
+      },
+      worker: {
+        title: "ワーカー VM",
+        spec: "4 vCPU / 8 GiB / 40 GiB 以上",
+        items: ["k0s ワーカー", "業務アプリ・Knowledge", "AI Gateway"],
+      },
+      join: ["SSH で登録", "k0s で参加"],
+      pgx: {
+        title: "PGX · Sovereign GaiXer",
+        sub: "FIXER 環境",
+        items: ["API 窓口", "LLM（PGX 内）"],
+      },
+      aiCall: ["AI 呼び出し", "（LAN 内）"],
+      customer: {
+        title: "お客様に用意いただくもの",
+        items: ["権威 DNS", "LAN 内の VIP 範囲", "TLS 発行者（自社 CA 可）"],
+      },
+      registry: {
+        title: "OCI レジストリ",
+        sub: "ghcr.io",
+        note: ["初期のイメージ取得", "（要検討）"],
+      },
+      caption:
+        "最小構成は x86 ホスト 1 台（32 GiB）に VM を 2 つ置き、管理クラスタとワーカーに分けます。業務アプリ・Knowledge・AI Gateway はワーカーで動き、AI 呼び出しは同じ LAN の GaiXer の API 窓口に向かいます。社外への通信は、導入・更新時に OCI レジストリ（ghcr.io）からイメージを取得する経路だけで、この扱いは要検討です。",
     },
-    {
-      title: "推論先は OpenAI 互換で差し替え",
-      body: "Gateway は OpenAI 互換の /v1/chat/completions を話します。本日のデモは同梱の llm（gemma3:4b、CPU）が推論先です。GaiXer の OpenAI 互換 API を推論先として登録すれば、アプリ側を変えずに同じ経路で動きます。",
+    specs: {
+      title: "構成とスペック",
+      labels: { item: "項目", value: "内容", status: "状態" },
+      rows: [
+        {
+          item: "最小構成",
+          value: "x86_64 ホスト 1 台・32 GiB に VM 2 つ（管理クラスタ VM + ワーカー VM）",
+          status: "verified",
+        },
+        {
+          item: "管理クラスタ VM",
+          value: "8 vCPU / 20 GiB / 100 GiB SSD。単一ノードの k3s、管理画面、各 Project の制御プレーン",
+          status: "verified",
+        },
+        {
+          item: "ワーカー VM",
+          value: "4 vCPU / 8 GiB / 40 GiB 以上。k0s ワーカー、業務アプリ",
+          status: "verified",
+        },
+        {
+          item: "検証結果",
+          value: "2026-10-18 受入。1 Project・5 アプリ・2 時間の負荷で、エラー 0",
+          status: "verified",
+        },
+        {
+          item: "複数ホスト・HA・本番プロファイル",
+          value: "ワーカーホストを増やす構成、冗長化、本番向けの設定",
+          status: "developing",
+        },
+      ],
+      note: "Project のストレージとマネージド DB は、32 GiB の受入検証の範囲外です（要確認）。",
     },
-    {
-      title: "使うモデルと記録は基盤で管理",
-      body: "どのモデルを使ってよいかを許可リストで定め、Gateway が呼び出しごとに推論先・モデル・結果を記録します。GaiXer を使う場合も同じ管理がかかります。",
+    requirements: {
+      title: "お客様の環境に必要なもの",
+      items: [
+        { title: "ホスト", body: "SSH で到達できる Linux ホスト（VM またはベアメタル、x86_64）" },
+        { title: "DNS", body: "お客様が権威 DNS を持ち、AppThrust 用のレコードを作成（external モード）" },
+        { title: "VIP 範囲", body: "LAN 内で MetalLB に割り当てる IP アドレスの範囲" },
+        { title: "TLS 発行者", body: "証明書の発行者。お客様の CA も使えます" },
+        {
+          title: "インターネット",
+          body: "導入時は OCI レジストリ（ghcr.io）からのイメージ取得が必要です。エアギャップ（レジストリミラー）は v1 の対象外のため要相談です。",
+        },
+      ],
     },
-  ],
-  confirm: {
-    title: "確認させてください",
-    items: [
-      "GaiXer は OpenAI 互換の /v1/chat/completions（ストリーミング応答を含む）を持っていますか",
-      "GaiXer は OpenAI 互換の /v1/embeddings を持っていますか（持たない場合、ベクトル化は AppThrust 同梱の Embedding で行えます）",
-      "API の認証方式（API キー、mTLS など）と、クラスタから到達できるネットワーク上の位置",
+  },
+  match: {
+    title: "GaiXer の API 窓口と AppThrust の AI Gateway は、つなぎ方が合う",
+    labels: { gaixer: "GaiXer の API 窓口（公開情報）", appthrust: "AppThrust の AI Gateway" },
+    rows: [
+      {
+        gaixer: "「クラウド型生成 AI と同じ呼び出し方に対応」",
+        appthrust: "OpenAI 互換の推論先（provider）を登録して呼ぶ。GaiXer の窓口が OpenAI 互換で呼べるかは要確認",
+      },
+      {
+        gaixer: "「接続先を本体に向け変えるだけ」",
+        appthrust: "業務アプリ・Knowledge は変えず、Gateway に登録した推論先だけを API 窓口に替える",
+      },
+      {
+        gaixer: "利用者管理・監査ログは API 窓口で一括",
+        appthrust: "Gateway も呼び出しごとに推論先・モデル・結果を記録。両側に記録が残る",
+      },
+      {
+        gaixer: "混み合えば 2 台目を同じ LAN に置くと自動で協調",
+        appthrust: "Gateway の接続先は 1 つの窓口のままで済む想定（2 台構成時の窓口の見え方は要確認）",
+      },
     ],
-    note: "GaiXer を推論先として登録する設定の手順は、PoC で一緒に確認します（要確認）。",
+    note: "GaiXer 側の記載は sovereign.gaixer.com（製品解説シリーズ第 6・10 回）より。",
+  },
+  formB: {
+    key: "B",
+    name: "同梱する（ストアアプリとして）",
+    status: "PoC で判断",
+    summary:
+      "PGX 1 台の上に AppThrust を載せ、GaiXer アプリストアから配ります。サーバを 1 台足さずに済む一方、ARM の CPU と、LLM と共有する 128GB のメモリの上で動かすことになるため、次の点を確かめてから判断します。",
+    stackLabel: "PGX 1 台の中の構成（想定）",
+    stack: [
+      { layer: "業務アプリ", content: "AppThrust で作った業務アプリ", highlight: true },
+      { layer: "GaiXer アプリストア", content: "AppThrust をストアアプリとして配布", highlight: true },
+      { layer: "Sovereign GaiXer（AI-OS）", content: "LLM の制御・安全対策・ユーザー管理・監査ログ", highlight: false },
+      { layer: "PGX（筐体）", content: "ARM 20 コア、128GB を LLM と共有、DGX OS", highlight: false },
+    ],
+    verify: {
+      title: "要検証",
+      items: [
+        { title: "arm64 対応", body: "AppThrust の ARM（arm64）での稼働は未検証です。動作確認済みは x86_64 の単一ホスト（32 GiB）です。" },
+        { title: "1 台に収める構成", body: "k0s ワーカーは管理クラスタと同じ OS に同居できないため、1 台構成は「管理クラスタの VM + ワーカー」になります。DGX OS（Ubuntu ベース）の上で VM を分け、k3s / k0s を動かせるか確かめます。" },
+        { title: "LLM とのメモリ配分", body: "AppThrust の最小構成は VM 2 つに計 28 GiB（20 + 8 GiB）を割り当てます。128GB の unified memory を LLM と分け合って足りるかを測ります。" },
+        { title: "ストアのアプリ形式", body: "ストアアプリがコンテナで配れるのか、どの形式なら AppThrust を載せられるかを伺います。" },
+        { title: "AI-OS との統合", body: "AI-OS のユーザー管理・監査ログと、AppThrust の SSO（OIDC）・記録をどうつなぐかを決めます。" },
+      ],
+    },
+    note: "形 A で接続と業務の流れを確かめてから、形 B に進むかを PoC の結果で判断します。",
+  },
+  split: {
+    title: "GaiXer が引き受けるもの / AppThrust が引き受けるもの",
+    lead: "どちらの形でも、分担は次のとおりと考えています。",
+    columns: [
+      {
+        key: "gaixer",
+        title: "GaiXer が引き受けるもの",
+        items: [
+          "LLM の制御（推論エンジン）",
+          "安全対策（ハルシネーション・プロンプトインジェクション・個人情報の検知）",
+          "ユーザー管理",
+          "監査ログ",
+        ],
+      },
+      {
+        key: "appthrust",
+        title: "AppThrust が引き受けるもの",
+        items: [
+          "業務アプリの作成・公開",
+          "部門別のアクセス権限",
+          "アプリのデータベース",
+          "RAG の文書管理（Knowledge）",
+        ],
+      },
+      {
+        key: "overlap",
+        title: "重なるところ",
+        items: [
+          "ユーザー管理: AI-OS のユーザー管理 と AppThrust の Directory / SSO",
+          "監査: API 窓口の監査ログ と AI Gateway の呼び出し記録",
+          "RAG: GaiXer 標準の社内文書連携 と AppThrust の Knowledge",
+        ],
+      },
+    ],
+    note: "重なるところは、どちらを正とするかを PoC で決めます。",
   },
 };
 
@@ -443,32 +699,43 @@ export const partnershipSection: SectionHeading = {
   id: "partnership",
   eyebrow: "05",
   title: "協業の形",
-  lead: "2 つの形を考えています。どちらが GaiXer の販売の仕方に合うか、ご意見をお聞かせください。",
+  lead: "3 つの形を考えています。GaiXer の売り方に合うものを、組み合わせも含めてご意見をお聞かせください。",
 };
 
 export const partnership: PartnershipContent = {
   options: [
     {
-      key: "A",
-      name: "再販",
-      summary: "FIXER 様が AppThrust を GaiXer とあわせてお客様に販売する形です。",
+      key: "1",
+      name: "アプリストアの作り手",
+      summary: "AppThrust で作った業務アプリを、GaiXer アプリとしてストアに登録・販売する形です。",
       points: [
-        { label: "契約", value: "お客様 ⇄ FIXER 様 ⇄ 当社" },
-        { label: "価格", value: "定価に対するパートナー価格（料率は要相談）" },
-        { label: "製品名", value: "AppThrust のまま" },
+        { label: "作り手の枠", value: "業務ソフトメーカー、または販売パートナーの枠" },
+        { label: "届け方", value: "GaiXer アプリストアから、お客様のオンプレへ" },
+        { label: "前提", value: "ストアのアプリ形式と、登録の条件・時期（要確認。公開情報ではパートナー相談で案内）" },
       ],
-      fit: "GaiXer と AppThrust を、それぞれの製品として提案する場合に向きます。",
+      fit: "CEATEC で伺った「GaiXer に組み入れる」に最も近い案です。技術面は 03 の形 B とストアの形式の確認結果によります。",
     },
     {
-      key: "B",
-      name: "OEM",
-      summary: "AppThrust を GaiXer に同梱し、GaiXer の機能の一部として届ける形です。",
+      key: "2",
+      name: "基盤の再販 / OEM",
+      summary: "FIXER 様が AppThrust そのものをお客様に届ける形です。お客様の部門が、自分たちで業務アプリを作れるようになります。",
       points: [
-        { label: "契約", value: "お客様 ⇄ FIXER 様。当社とは FIXER 様が契約" },
-        { label: "価格", value: "GaiXer 同梱の定額ライセンス（金額は要相談）" },
-        { label: "製品名", value: "GaiXer の一部として提供（表記は要相談）" },
+        { label: "再販", value: "お客様 ⇄ FIXER 様 ⇄ 当社。定価に対するパートナー価格（料率は要相談）。製品名は AppThrust のまま" },
+        { label: "OEM", value: "FIXER 様の製品の一部として提供する定額ライセンス（金額・表記は要相談）" },
+        { label: "接続", value: "03 の形 A（同じ LAN の x86 ホストに AppThrust をオンプレ配置）から始められる" },
       ],
-      fit: "CEATEC で伺った「GaiXer に組み入れる」形に近い案です。",
+      fit: "GaiXer を入れたお客様が、部門ごとに業務アプリを増やしていきたい場合に向きます。",
+    },
+    {
+      key: "3",
+      name: "クラウド側（ハイブリッド）",
+      summary: "FIXER 様の cloud.config（24/365 マネージド）で Azure 上の AppThrust を運用し、お客様社内の GaiXer をオンプレの推論先にする形です。",
+      points: [
+        { label: "運用", value: "Azure 上の AppThrust を cloud.config で FIXER 様が運用" },
+        { label: "推論", value: "お客様社内の GaiXer を AI Gateway の推論先に登録" },
+        { label: "要確認", value: "Azure での AppThrust の稼働確認（要検証）、Azure と社内 LAN をつなぐ閉域接続の方式。業務アプリのデータは Azure 側に置くことになる" },
+      ],
+      fit: "社内にサーバを増やしたくないお客様や、FIXER 様の運用サービスとあわせて提案する場合に向きます。",
     },
   ],
   priceReference: {
@@ -512,7 +779,7 @@ export const roles: RolesContent = {
     },
     {
       area: "GaiXer との接続",
-      fixer: "GaiXer 側のエンドポイント・認証の用意",
+      fixer: "API 窓口の接続情報・認証の用意",
       appthrust: "AI Gateway の接続設定と検証",
     },
     {
@@ -530,29 +797,58 @@ export const questionsSection: SectionHeading = {
   id: "questions",
   eyebrow: "07",
   title: "確認したいこと",
-  lead: "協業の形と PoC の範囲を決めるために、次の点を伺えますか。",
+  lead: "接続形・協業の形・PoC の範囲を決めるために、次の点を伺えますか。",
 };
 
 export const questions: QuestionItem[] = [
   {
-    topic: "GaiXer の基盤",
-    question: "GaiXer はベアメタル、VM、Kubernetes のどれの上で動いていますか。",
-    why: "AppThrust を同じ基盤に載せるか、隣に置くかが決まります。",
+    topic: "API 窓口の仕様",
+    question: "API 窓口は、OpenAI 互換の形で呼べますか。",
+    details: [
+      "OpenAI 互換の /v1/chat/completions と /v1/embeddings の有無",
+      "認証の方式（API キー / ユーザーごとのトークン）",
+      "提供しているモデルと、コンテキスト長",
+      "ストリーミング応答の有無",
+    ],
+    why: "形 A で、AI Gateway の推論先としてそのまま登録できるかが決まります。/v1/embeddings がない場合、ベクトル化は AppThrust 同梱の Embedding で行えます。",
   },
   {
-    topic: "OpenAI 互換 API",
-    question: "/v1/chat/completions と /v1/embeddings を、OpenAI 互換で提供していますか。",
-    why: "AI Gateway からそのまま接続できるかが決まります。",
+    topic: "アプリストアの登録形式",
+    question: "AppThrust 製のアプリを、どの形式でストアに登録できますか。",
+    details: [
+      "コンテナか、Web アプリか",
+      "AI-OS のユーザー管理との SSO の方法",
+      "監査ログへの書き込み口",
+      "登録の条件と時期",
+    ],
+    why: "協業の形 1（ストアの作り手）と、接続形 B（同梱）が成り立つかが決まります。",
   },
   {
-    topic: "同梱アプリとの重なり",
-    question: "GaiXer に同梱している業務アプリは、どのようなものがありますか。",
-    why: "「AppThrust は基盤、FIXER 様のアプリもその上で動く」という整理で重ならないか確かめます。",
+    topic: "リソース",
+    question: "PGX の上で、アプリにどれだけ資源を回せますか。",
+    details: [
+      "PGX 1 台の 128GB のうち、LLM 以外のアプリに回せる量",
+      "複数台構成のとき、アプリをどの機体に置くか",
+    ],
+    why: "形 B で AppThrust を同梱できるか、何台の構成からお勧めするかが決まります。",
   },
   {
-    topic: "想定顧客の規模",
-    question: "想定されるお客様の業種・人数・部門数・拠点数はどのくらいですか。",
-    why: "構成（ホスト台数）と、パートナー価格・OEM ライセンスの考え方が決まります。",
+    topic: "導入先のネットワーク",
+    question: "想定するお客様の LAN で、AppThrust の導入に必要なものを用意できますか。",
+    details: [
+      "導入・更新時に OCI レジストリ（ghcr.io）からイメージを取得する経路",
+      "権威 DNS へのレコード作成、LAN 内の VIP 範囲、TLS 発行者（自社 CA 可）",
+    ],
+    why: "外部レジストリへ出られない（エアギャップ必須の）お客様は、v1 の対象外のため個別のご相談になります。",
+  },
+  {
+    topic: "販路",
+    question: "FIXER 様は、AppThrust をどの形で扱うのがよいですか。",
+    details: [
+      "再販 / OEM / cloud.config でのクラウド運用のどれか（組み合わせも含む）",
+      "想定するお客様（極小〜中堅の製造業、医療、法務など）と、その規模",
+    ],
+    why: "05 のどの形で進めるかと、パートナー価格・OEM ライセンスの考え方が決まります。",
   },
 ];
 
@@ -562,32 +858,38 @@ export const nextSection: SectionHeading = {
   id: "next",
   eyebrow: "08",
   title: "次のステップ",
-  lead: "まず技術接続を確かめ、そのうえで協業の条件を詰めることを提案します。",
+  lead: "まず形 A で技術接続を確かめ、そのうえで協業の条件を詰めることを提案します。",
 };
 
 export const pocPlan: PocPlan = {
-  title: "技術接続の PoC",
-  goal: "GaiXer のエンドポイントに AI Gateway を向け、Knowledge の回答を GaiXer で生成できることを確かめる。",
+  title: "技術接続の PoC（形 A）",
+  goal: "AI Gateway を GaiXer の API 窓口に向け、本日の Knowledge デモをそのまま GaiXer で通す。",
   rows: [
     { label: "期間", value: "2〜4 週" },
-    { label: "環境", value: "GaiXer の検証環境、または当社の検証環境から GaiXer に接続（要相談）" },
-    { label: "確かめること", value: "回答の生成、ストリーミング応答、呼び出し記録、応答時間" },
-    { label: "条件", value: "要相談" },
+    {
+      label: "環境",
+      value: "GaiXer の 2 週間無料トライアル環境（申込・審査あり。提供形態は要確認）、または FIXER 様社内の PGX。AppThrust は同じ LAN の x86 ホスト（最小構成 32 GiB）にオンプレ配置する",
+    },
+    {
+      label: "確かめること",
+      value: "回答の生成、ストリーミング応答、両側の記録（Gateway の呼び出し記録 / API 窓口の監査ログ）、応答時間",
+    },
+    { label: "形 B の判断材料", value: "arm64 で AppThrust が動くか、LLM と並べたときのメモリ配分（できる範囲で）" },
   ],
 };
 
 export const nextSteps: NextStep[] = [
   {
     title: "確認事項の回答",
-    body: "07 の確認事項（基盤・API・同梱アプリ・規模）を伺い、接続方式を決めます。",
+    body: "07 の確認事項（API 窓口・ストアの登録形式・リソース・導入先のネットワーク・販路）を伺い、PoC の範囲を決めます。",
   },
   {
     title: "技術接続の PoC",
-    body: "GaiXer に AI Gateway を向け、本日のデモと同じ回答を GaiXer で生成します（2〜4 週）。",
+    body: "形 A で AI Gateway を API 窓口に向け、本日の Knowledge デモを GaiXer で通します（2〜4 週）。形 B に進むかもここで判断します。",
   },
   {
     title: "協業条件の合意",
-    body: "再販か OEM か、価格と役割分担・SLA を決め、最初のお客様への提案に進みます。",
+    body: "ストアの作り手・基盤の再販 / OEM・クラウド運用のどれで進めるか、価格と役割分担・SLA を決め、最初のお客様への提案に進みます。",
   },
 ];
 
